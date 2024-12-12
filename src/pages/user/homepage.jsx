@@ -196,12 +196,14 @@ const HomePage = () => {
                 aptent dapibus metus maecenas consequat. Elementum interdum a
                 semper.
               </p>
+              <Link to="/about">
               <motion.button
                 whileHover={{ scale: 1.1 }}
                 className="bg-black text-white hover:bg-gray-900 px-6 py-2 rounded uppercase text-sm font-medium tracking-wider"
               >
                 Learn More
               </motion.button>
+              </Link>
             </div>
           </motion.div>
         </div>

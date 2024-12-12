@@ -1,5 +1,5 @@
 import React from 'react';
-import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 
 const Dashboard = () => {
     // Sample data for pie charts
@@ -53,7 +53,9 @@ const Dashboard = () => {
                     <h2 className="text-lg font-semibold mb-4">Order Status</h2>
                     <div className="h-64">
                         <ResponsiveContainer width="100%" height="100%">
+                       
                             <PieChart>
+                            <Tooltip />
                                 <Pie data={orderData} innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="value">
                                     {orderData.map((entry, index) => (
                                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
@@ -70,7 +72,9 @@ const Dashboard = () => {
                     <h2 className="text-lg font-semibold mb-4">Revenue Analytics</h2>
                     <div className="h-64">
                         <ResponsiveContainer width="100%" height="100%">
+                        
                             <PieChart>
+                            <Tooltip />
                                 <Pie data={revenueData} innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="value">
                                     {revenueData.map((entry, index) => (
                                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
@@ -87,7 +91,9 @@ const Dashboard = () => {
                     <h2 className="text-lg font-semibold mb-4">Customer Growth</h2>
                     <div className="h-64">
                         <ResponsiveContainer width="100%" height="100%">
+                        
                             <PieChart>
+                            <Tooltip />
                                 <Pie data={growthData} innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="value">
                                     {growthData.map((entry, index) => (
                                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />

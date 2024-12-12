@@ -10,7 +10,9 @@ const Orders = () => {
     key: null,
     direction: 'ascending'
   });
-
+  const [currentPage, setCurrentPage] = useState(1); // Current page state
+  const [itemsPerPage] = useState(10); // Number of items per page
+  
   useEffect(() => {
     fetchOrders();
   }, []);
@@ -32,6 +34,7 @@ const Orders = () => {
     }
     setSortConfig({ key, direction });
   };
+
   const sortedOrders = React.useMemo(() => {
     if (!Array.isArray(orders)) return [];
     
@@ -74,11 +77,21 @@ const Orders = () => {
     });
   }, [sortedOrders, searchQuery]);
 
+  // Calculate pagination
+  const totalPages = Math.ceil(filteredOrders.length / itemsPerPage);
+  const currentPageOrders = filteredOrders.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+  const goToPage = (pageNumber) => {
+    if (pageNumber >= 1 && pageNumber <= totalPages) {
+      setCurrentPage(pageNumber);
+    }
+  };
+
   return (
     <div className="flex">
-    <Helmet>
-      <title>Orders | Admin | Mera Bestie</title>
-    </Helmet>
+      <Helmet>
+        <title>Orders | Admin | Mera Bestie</title>
+      </Helmet>
       <Sidebar />
       <div className="flex-1 p-8 ml-[5rem] lg:ml-64 bg-pink-50 min-h-screen">
         <div className="mb-6 flex justify-center">
@@ -151,7 +164,7 @@ const Orders = () => {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {filteredOrders.map((order) => (
+              {currentPageOrders.map((order) => (
                 <tr key={order.orderId}>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     {order.orderId}
@@ -181,6 +194,26 @@ const Orders = () => {
               ))}
             </tbody>
           </table>
+        </div>
+
+        {/* Pagination Controls */}
+        <div className="flex justify-center py-4">
+          <div className="flex space-x-2">
+            <button 
+              onClick={() => goToPage(currentPage - 1)}
+              disabled={currentPage === 1}
+              className={`px-6 py-2 text-sm font-medium rounded-lg ${currentPage === 1 ? 'bg-gray-300 text-gray-600' : 'bg-pink-500 text-white'}`}
+            >
+              Previous
+            </button>
+            <button 
+              onClick={() => goToPage(currentPage + 1)}
+              disabled={currentPage === totalPages}
+              className={`px-6 py-2 text-sm font-medium rounded-lg ${currentPage === totalPages ? 'bg-gray-300 text-gray-600' : 'bg-pink-500 text-white'}`}
+            >
+              Next
+            </button>
+          </div>
         </div>
       </div>
     </div>

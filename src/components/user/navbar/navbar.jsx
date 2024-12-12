@@ -100,9 +100,9 @@ export default function Navbar() {
                 <FaShoppingCart className="w-4 h-4" />
                 <span className="ml-2 hidden md:inline">Cart</span>
               </Link>
-              <button aria-label="Wishlist" className="hover:text-gray-500 hidden md:block">
+              <Link to="/wishlist" className="hover:text-gray-500 hidden md:block">
                 <FaHeart className="w-4 h-4" />
-              </button>
+              </Link>
               <div className="relative">
                 <button
                   aria-label="Profile"

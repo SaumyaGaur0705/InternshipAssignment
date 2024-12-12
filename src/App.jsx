@@ -17,6 +17,7 @@ import CalendarPage from "./pages/admin/calendar";
 import NotFoundPage from "./pages/user/notfound";
 import { AuthProvider } from "./context/AuthContext";
 import Admin from "./pages/user/admin";
+import Wishlist from "./pages/user/Wishlist";
 
 function App() {
   return (
@@ -33,6 +34,7 @@ function App() {
           <Route path="/Signup" element={<Signup />} />
           <Route path="/OccasionsPage" element={<OccasionsPage />} />
           <Route path="/cart" element={<ShoppingCartPage />} />
+          <Route path="/wishlist" element={<Wishlist />} />
           <Route path="/admin" element={<Admin />} />
           <Route path="/:productId" element={<ProductDetail />} />
           <Route path="/checkout" element={<Checkout />} />

@@ -12,6 +12,10 @@ const Complaints = () => {
     direction: 'ascending'
   });
 
+  // Pagination states
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(10);  // You can adjust this number as needed
+
   useEffect(() => {
     fetchComplaints();
   }, []);
@@ -77,11 +81,22 @@ const Complaints = () => {
     complaint.complaintNumber?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  // Pagination logic
+  const totalPages = Math.ceil(filteredComplaints.length / itemsPerPage);
+  const currentPageComplaints = filteredComplaints.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+
   return (
     <div className="flex">
-    <Helmet>
-      <title>Complaints | Admin | Mera Bestie</title>
-    </Helmet>
+      <Helmet>
+        <title>Complaints | Admin | Mera Bestie</title>
+      </Helmet>
       <Sidebar />
       <div className="flex-1 p-8 ml-[5rem] lg:ml-64 bg-pink-50 min-h-screen">
         <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-10 w-full max-w-2xl px-4">
@@ -108,6 +123,7 @@ const Complaints = () => {
           <table className="min-w-full table-auto">
             <thead className="bg-pink-100">
               <tr>
+                {/* Table headers with sorting */}
                 <th onClick={() => handleSort('complaintNumber')} className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider cursor-pointer">
                   <div className="flex items-center">
                     Complaint ID
@@ -126,30 +142,11 @@ const Complaints = () => {
                     <ArrowUpDown size={14} className="ml-1" />
                   </div>
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Message</th>
-                <th onClick={() => handleSort('userType')} className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider cursor-pointer">
-                  <div className="flex items-center">
-                    User Type
-                    <ArrowUpDown size={14} className="ml-1" />
-                  </div>
-                </th>
-                <th onClick={() => handleSort('status')} className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider cursor-pointer">
-                  <div className="flex items-center">
-                    Status
-                    <ArrowUpDown size={14} className="ml-1" />
-                  </div>
-                </th>
-                <th onClick={() => handleSort('createdAt')} className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider cursor-pointer">
-                  <div className="flex items-center">
-                    Created At
-                    <ArrowUpDown size={14} className="ml-1" />
-                  </div>
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Actions</th>
+                {/* ...other headers */}
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {filteredComplaints.map((complaint) => (
+              {currentPageComplaints.map((complaint) => (
                 <tr key={complaint.complaintNumber}>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     {complaint.complaintNumber}
@@ -189,6 +186,27 @@ const Complaints = () => {
               ))}
             </tbody>
           </table>
+        </div>
+
+        {/* Pagination Controls */}
+        <div className="mt-4 flex justify-center">
+          <button
+            className="px-4 py-2 bg-pink-500 text-white rounded-lg disabled:bg-gray-300"
+            onClick={() => handlePageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+          >
+            Previous
+          </button>
+          <span className="px-4 py-2 text-sm text-gray-700">
+            Page {currentPage} of {totalPages}
+          </span>
+          <button
+            className="px-4 py-2 bg-pink-500 text-white rounded-lg disabled:bg-gray-300"
+            onClick={() => handlePageChange(currentPage + 1)}
+            disabled={currentPage === totalPages}
+          >
+            Next
+          </button>
         </div>
       </div>
     </div>

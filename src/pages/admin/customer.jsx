@@ -11,6 +11,10 @@ const Customers = () => {
     direction: 'ascending'
   });
 
+  // Pagination states
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10; // Set the number of customers per page
+
   useEffect(() => {
     fetchCustomers();
   }, []);
@@ -20,7 +24,6 @@ const Customers = () => {
       const response = await fetch('https://ecommercebackend-8gx8.onrender.com/get-user');
       const data = await response.json();
       if (data.success) {
-        // Map the user data and set default values if fields are missing
         const mappedUsers = data.users.map(user => ({
           userId: user.userId || '',
           name: user.name || '',
@@ -42,49 +45,16 @@ const Customers = () => {
     setSortConfig({ key, direction });
   };
 
-  const handleStatusChange = async (userId, newStatus) => {
-    try {
-      const response = await fetch('https://ecommercebackend-8gx8.onrender.com/update-account-status', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          userId,
-          accountStatus: newStatus
-        })
-      });
-
-      if (response.ok) {
-        setCustomers(prevCustomers => 
-          prevCustomers.map(customer => 
-            customer.userId === userId 
-              ? {...customer, accountStatus: newStatus}
-              : customer
-          )
-        );
-      }
-    } catch (error) {
-      console.error('Error updating account status:', error);
-    }
-  };
-
   const sortedCustomers = React.useMemo(() => {
     if (!Array.isArray(customers)) return [];
     
     let sortableCustomers = [...customers];
     if (sortConfig.key !== null) {
       sortableCustomers.sort((a, b) => {
-        const aValue = a[sortConfig.key] || '';
-        const bValue = b[sortConfig.key] || '';
-
-        const aString = String(aValue).toLowerCase();
-        const bString = String(bValue).toLowerCase();
-
-        if (aString < bString) {
+        if (a[sortConfig.key] < b[sortConfig.key]) {
           return sortConfig.direction === 'ascending' ? -1 : 1;
         }
-        if (aString > bString) {
+        if (a[sortConfig.key] > b[sortConfig.key]) {
           return sortConfig.direction === 'ascending' ? 1 : -1;
         }
         return 0;
@@ -93,51 +63,48 @@ const Customers = () => {
     return sortableCustomers;
   }, [customers, sortConfig]);
 
-  const filteredCustomers = React.useMemo(() => {
-    return sortedCustomers.filter(customer => {
-      const searchLower = searchQuery.toLowerCase();
-      const userId = customer.userId?.toString().toLowerCase() || '';
-      const customerName = customer.name?.toLowerCase() || '';
-      const customerEmail = customer.email?.toLowerCase() || '';
-      
-      return userId.includes(searchLower) || 
-             customerName.includes(searchLower) || 
-             customerEmail.includes(searchLower);
-    });
-  }, [sortedCustomers, searchQuery]);
+  const filteredCustomers = sortedCustomers.filter(customer => 
+    customer.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    customer.email.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  // Pagination logic
+  const totalPages = Math.ceil(filteredCustomers.length / itemsPerPage);
+  const currentPageCustomers = filteredCustomers.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
 
   return (
     <div className="flex">
-    <Helmet>
-      <title>Customers | Admin | Mera Bestie</title>
-    </Helmet>
+      <Helmet>
+        <title>Customers | Admin | Mera Bestie</title>
+      </Helmet>
       <Sidebar />
       <div className="flex-1 p-8 ml-[5rem] lg:ml-64 bg-pink-50 min-h-screen">
-        <div className="mb-6 flex justify-center">
-          <div className="w-full max-w-md">
-            <div className="relative">
+        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-10 w-full max-w-2xl px-4">
+          <div className="relative">
+            <div className="flex items-center w-full">
               <input
                 type="text"
-                placeholder="Search by user ID, name or email..."
-                className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-300"
+                placeholder="Search by name or email..."
+                className="w-full pl-4 pr-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-300 bg-white shadow-lg"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
-              <Search className="absolute left-3 top-2.5" size={20} />
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow-md overflow-x-auto">
+        <div className="bg-white rounded-lg shadow-md overflow-x-auto mt-20">
           <table className="min-w-full table-auto">
             <thead className="bg-pink-100">
               <tr>
-                <th onClick={() => handleSort('userId')} className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider cursor-pointer">
-                  <div className="flex items-center">
-                    User ID
-                    <ArrowUpDown size={14} className="ml-1" />
-                  </div>
-                </th>
+                {/* Table headers with sorting */}
                 <th onClick={() => handleSort('name')} className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider cursor-pointer">
                   <div className="flex items-center">
                     Name
@@ -150,41 +117,51 @@ const Customers = () => {
                     <ArrowUpDown size={14} className="ml-1" />
                   </div>
                 </th>
-                <th onClick={() => handleSort('accountStatus')} className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider cursor-pointer">
-                  <div className="flex items-center">
-                    Account Status
-                    <ArrowUpDown size={14} className="ml-1" />
-                  </div>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                  Account Status
                 </th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {filteredCustomers.map((user) => (
-                <tr key={user.userId || Math.random()}>
+              {currentPageCustomers.map((customer) => (
+                <tr key={customer.userId}>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {user.userId || ''}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {user.name || ''}
+                    {customer.name}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {user.email || ''}
+                    {customer.email}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    <select
-                      value={user.accountStatus || 'open'}
-                      onChange={(e) => handleStatusChange(user.userId, e.target.value)}
-                      className="border rounded px-2 py-1"
-                    >
-                      <option value="open">Open</option>
-                      <option value="suspended">Suspended</option>
-                      <option value="blocked">Blocked</option>
-                    </select>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm">
+                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                      ${customer.accountStatus === 'closed' ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'}`}>
+                      {customer.accountStatus}
+                    </span>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
+        </div>
+
+        {/* Pagination Controls */}
+        <div className="mt-4 flex justify-center">
+          <button
+            className="px-4 py-2 bg-pink-500 text-white rounded-lg disabled:bg-gray-300"
+            onClick={() => handlePageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+          >
+            Previous
+          </button>
+          <span className="px-4 py-2 text-sm text-gray-700">
+            Page {currentPage} of {totalPages}
+          </span>
+          <button
+            className="px-4 py-2 bg-pink-500 text-white rounded-lg disabled:bg-gray-300"
+            onClick={() => handlePageChange(currentPage + 1)}
+            disabled={currentPage === totalPages}
+          >
+            Next
+          </button>
         </div>
       </div>
     </div>

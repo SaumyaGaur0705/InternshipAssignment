@@ -11,6 +11,8 @@ const ProductDetail = () => {
   const navigate = useNavigate();
   const [product, setProduct] = useState(null);
   const [quantity, setQuantity] = useState(1);
+  const [wishlist, setWishlist] = useState([]);
+  const [isInWishlist, setIsInWishlist] = useState(false);
   const [showLoginDialog, setShowLoginDialog] = useState(false);
   const [showAddAnimation, setShowAddAnimation] = useState(false);
 
@@ -27,6 +29,12 @@ const ProductDetail = () => {
       }
     };
     fetchProduct();
+  }, [productId]);
+
+  useEffect(() => {
+    const storedWishlist = JSON.parse(localStorage.getItem('wishlist')) || [];
+    setWishlist(storedWishlist);
+    setIsInWishlist(storedWishlist.includes(productId));
   }, [productId]);
 
   const handleQuantityChange = (change) => {
@@ -84,6 +92,30 @@ const ProductDetail = () => {
     }
   };
 
+  const handleWishlistToggle = () => {
+    let updatedWishlist = [...wishlist];
+    if (isInWishlist) {
+      updatedWishlist = updatedWishlist.filter(id => id !== productId);
+    } else {
+      updatedWishlist.push(productId);
+    }
+    setWishlist(updatedWishlist);
+    setIsInWishlist(!isInWishlist);
+    localStorage.setItem('wishlist', JSON.stringify(updatedWishlist));
+
+    toast(
+      isInWishlist ? 'Removed from Wishlist' : 'Added to Wishlist',
+      {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      }
+    );
+  };
+
   if (!product) {
     return (
       <div className="min-h-screen bg-pink-50 flex items-center justify-center">
@@ -94,9 +126,9 @@ const ProductDetail = () => {
 
   return (
     <>
-    <Helmet>
-      <title>Product Details | Mera Bestie</title>
-    </Helmet>
+      <Helmet>
+        <title>Product Details | Mera Bestie</title>
+      </Helmet>
       <Navbar />
       <ToastContainer />
       <div className="min-h-screen bg-gradient-to-b from-pink-50 to-white py-12">
@@ -213,6 +245,18 @@ const ProductDetail = () => {
                       >
                         +
                       </button>
+
+                      <div
+                        onClick={handleWishlistToggle}
+                        className="ml-4 cursor-pointer text-2xl"
+                        title={isInWishlist ? "Remove from Wishlist" : "Add to Wishlist"}
+                      >
+                        {isInWishlist ? (
+                          <span className="text-black">❤️</span> // Black-filled heart
+                        ) : (
+                          <span className="text-gray-400">🖤</span> // Black-outline heart
+                        )}
+                      </div>
                     </div>
                   </div>
 
@@ -224,7 +268,7 @@ const ProductDetail = () => {
                     Add to Cart
                   </button>
                 </div>
-
+                
                 {/* Reviews Section */}
                 <div className="pt-6 border-t">
                   <div className="flex items-center justify-between">

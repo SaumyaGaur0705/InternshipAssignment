@@ -73,8 +73,11 @@ const CartItems = () => {
   const handleQuantityChange = async (itemId, change) => {
     const item = cartItems.find(item => item._id === itemId);
     const newQuantity = item.quantity + change;
-    
-    if (newQuantity >= 1) {
+  
+    if (newQuantity < 1) {
+      // Call handleRemoveItem if quantity is 1 and change is -1
+      handleRemoveItem(itemId);
+    } else {
       try {
         const userId = sessionStorage.getItem('userId');
         const response = await fetch('https://ecommercebackend-8gx8.onrender.com/update-quantity', {
@@ -88,7 +91,7 @@ const CartItems = () => {
             productQty: newQuantity
           })
         });
-
+  
         const data = await response.json();
         if (data.success) {
           const updatedItems = cartItems.map(item => {
@@ -104,6 +107,7 @@ const CartItems = () => {
       }
     }
   };
+  
 
   const handleRemoveItem = async (itemId) => {
     try {
