@@ -17,6 +17,10 @@ const Product = () => {
     direction: 'ascending'
   });
 
+  // Pagination states
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(10); // Adjust the number of items per page here
+
   useEffect(() => {
     fetchProducts();
   }, []);
@@ -119,6 +123,19 @@ const Product = () => {
     product.name?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  // Pagination Logic
+  const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
+  const currentPageProducts = filteredProducts.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  const goToPage = (pageNumber) => {
+    if (pageNumber > 0 && pageNumber <= totalPages) {
+      setCurrentPage(pageNumber);
+    }
+  };
+
   return (
     <div className="flex">
     <Helmet>
@@ -193,7 +210,7 @@ const Product = () => {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {filteredProducts.map((product) => (
+              {currentPageProducts.map((product) => (
                 <tr key={product.productId}>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
@@ -239,29 +256,21 @@ const Product = () => {
                     )}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    <select
-                      className="border rounded px-2 py-1 bg-white"
-                      value={product.visibility?.toString() || 'false'}
-                      onChange={(e) => handleVisibilityChange(product.productId, e.target.value)}
+                    <button 
+                      onClick={() => handleVisibilityChange(product.productId, product.visibility ? 'false' : 'true')}
+                      className={`px-4 py-2 text-xs font-semibold rounded-full ${product.visibility ? 'bg-green-500' : 'bg-red-500'} text-white`}
                     >
-                      <option value="true">Visible</option>
-                      <option value="false">Hidden</option>
-                    </select>
+                      {product.visibility ? 'Visible' : 'Hidden'}
+                    </button>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {editingId === product.productId ? (
-                      <button
-                        onClick={() => handleSave(product.productId)}
-                        className="text-blue-600 hover:text-blue-900"
-                      >
-                        <Save size={18} />
+                      <button onClick={() => handleSave(product.productId)}>
+                        <Save className="h-5 w-5 text-green-500" />
                       </button>
                     ) : (
-                      <button
-                        onClick={() => handleEdit(product)}
-                        className="text-blue-600 hover:text-blue-900"
-                      >
-                        <Pencil size={18} />
+                      <button onClick={() => handleEdit(product)}>
+                        <Pencil className="h-5 w-5 text-blue-500" />
                       </button>
                     )}
                   </td>
@@ -269,6 +278,26 @@ const Product = () => {
               ))}
             </tbody>
           </table>
+
+          <div className="flex justify-between items-center py-4">
+            <div className="text-sm text-gray-500">Showing {((currentPage - 1) * itemsPerPage) + 1} to {Math.min(currentPage * itemsPerPage, filteredProducts.length)} of {filteredProducts.length} products</div>
+            <div className="flex space-x-2">
+              <button 
+                onClick={() => goToPage(currentPage - 1)}
+                disabled={currentPage === 1}
+                className="px-4 py-2 bg-gray-300 text-sm font-medium rounded-full"
+              >
+                Previous
+              </button>
+              <button 
+                onClick={() => goToPage(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className="px-4 py-2 bg-gray-300 text-sm font-medium rounded-full"
+              >
+                Next
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>

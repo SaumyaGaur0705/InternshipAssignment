@@ -143,6 +143,26 @@ const Complaints = () => {
                   </div>
                 </th>
                 {/* ...other headers */}
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Message</th>
+                <th onClick={() => handleSort('userType')} className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider cursor-pointer">
+                  <div className="flex items-center">
+                    User Type
+                    <ArrowUpDown size={14} className="ml-1" />
+                  </div>
+                </th>
+                <th onClick={() => handleSort('status')} className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider cursor-pointer">
+                  <div className="flex items-center">
+                    Status
+                    <ArrowUpDown size={14} className="ml-1" />
+                  </div>
+                </th>
+                <th onClick={() => handleSort('createdAt')} className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider cursor-pointer">
+                  <div className="flex items-center">
+                    Created At
+                    <ArrowUpDown size={14} className="ml-1" />
+                  </div>
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
