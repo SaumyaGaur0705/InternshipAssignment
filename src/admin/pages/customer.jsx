@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import Sidebar from '../../components/admin/sidebar';
+import Sidebar from '../components/sidebar';
 import { Search, ArrowUpDown } from 'lucide-react';
 import { Helmet } from "react-helmet";
 

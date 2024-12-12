@@ -1,6 +1,6 @@
 import React from 'react';
-import Dashboard from '../../components/admin/dashboard';
-import Sidebar from '../../components/admin/sidebar';
+import Dashboard from '../../admin/components/dashboard';
+import Sidebar from '../../admin/components/sidebar';
 import { Helmet } from "react-helmet";
 
 const Admin = () => {
